@@ -3,9 +3,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Delivery Job Auto-Farm",
+    Name = "Lomi Hub - Urban RP 1.6",
     Icon = "truck",
-    LoadingTitle = "Lomi Hub Urban RP 1.5",
+    LoadingTitle = "Lomi Hub Urban RP 1.6",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -19,7 +19,7 @@ local Window = Rayfield:CreateWindow({
 
 local DeliveryJobTab = Window:CreateTab("Delivery Job", "dollar-sign")
 
-local AutoFarmSection = DeliveryJobTab:CreateSection("Auto-Farm Money")
+local AutoFarmSection = DeliveryJobTab:CreateSection("Auto-Farm")
 
 local AutoFarmEnabled = false
 local AutoFarmConnection
@@ -157,6 +157,78 @@ DeliveryJobTab:CreateKeybind({
         end
     end
 })
+
+-- Locations Tab
+local LocationsTab = Window:CreateTab("Locations", "map-pin")
+local LocationsSection = LocationsTab:CreateSection("Teleport to Locations")
+
+local locationsList = {
+    ["Storage"] = workspace.StorageSystem.Prompt.PromptHolder,
+    ["Spawn"] = workspace.CitizenSpawnLocation,
+    ["Jail"] = workspace.JailSpawnLocation,
+    ["Traphouse"] = workspace.Teleporter.Button_2,
+    ["Site"] = workspace.DeliveryJob.BoxPickingJob.PickupBox,
+    ["Police"] = workspace.TurfZones.PoliceZone,
+    ["Garage1"] = workspace.TurfZones.Zone1,
+    ["Garage2"] = workspace.TurfZones.Zone2,
+    ["Garage3"] = workspace.TurfZones.Zone3,
+    ["Garage4"] = workspace.TurfZones.Zone4,
+    ["7/11"] = workspace["Map Files"].Buildings["7/11"],
+    ["Court"] = workspace["Map Files"].Buildings["Basketball Court"]
+}
+
+-- Add everything inside "Map Files"
+for _, obj in pairs(workspace["Map Files"]:GetChildren()) do
+    if obj:IsA("BasePart") then
+        locationsList[obj.Name] = obj
+    end
+end
+
+local selectedLocation = ""
+
+local LocationDropdown = LocationsTab:CreateDropdown({
+    Name = "Locations List",
+    Options = table.keys(locationsList),
+    CurrentOption = "",
+    MultipleOptions = false,
+    Flag = "LocationDropdown",
+    Callback = function(selected)
+        selectedLocation = selected[1] or ""
+    end
+})
+
+LocationsTab:CreateButton({
+    Name = "Teleport",
+    Callback = function()
+        if selectedLocation ~= "" then
+            local locationPart = locationsList[selectedLocation]
+            if locationPart then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = locationPart.CFrame
+                Rayfield:Notify({
+                    Title = "Teleport Success",
+                    Content = "Teleported to " .. selectedLocation,
+                    Duration = 4,
+                    Image = "check"
+                })
+            else
+                Rayfield:Notify({
+                    Title = "Error",
+                    Content = "Location not found.",
+                    Duration = 4,
+                    Image = "x"
+                })
+            end
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "Please select a location.",
+                Duration = 4,
+                Image = "x"
+            })
+        end
+    end
+})
+
 
 -- Items Tab
 local ItemsTab = Window:CreateTab("Items", "shopping-cart")
