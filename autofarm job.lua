@@ -3,9 +3,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Lomi Hub - Urban RP 1.78",
+    Name = "Lomi Hub - Urban RP 1.79",
     Icon = "truck",
-    LoadingTitle = "Lomi Hub Urban RP 1.78",
+    LoadingTitle = "Lomi Hub Urban RP 1.79",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -157,119 +157,6 @@ DeliveryJobTab:CreateKeybind({
         end
     end
 })
-
--- Locations Tab
-local LocationsTab = Window:CreateTab("Locations", "map-pin")
-local LocationsSection = LocationsTab:CreateSection("Teleport to Locations")
-
-local locationsList = {}
-local selectedLocation = ""
-
-local function getTableKeys(tbl)
-    local keys = {}
-    for key, _ in pairs(tbl) do
-        table.insert(keys, key)
-    end
-    return keys
-end
-
-local function updateLocations()
-    locationsList = {
-        ["Storage"] = workspace.StorageSystem:FindFirstChild("Prompt") and workspace.StorageSystem.Prompt:FindFirstChild("PromptHolder"),
-        ["Spawn"] = workspace:FindFirstChild("CitizenSpawnLocation"),
-        ["Jail"] = workspace:FindFirstChild("JailSpawnLocation"),
-        ["Traphouse"] = workspace.Teleporter:FindFirstChild("Button_2"),
-        ["Site"] = workspace.DeliveryJob.BoxPickingJob:FindFirstChild("PickupBox"),
-        ["Police"] = workspace.TurfZones:FindFirstChild("PoliceZone"),
-        ["Garage1"] = workspace.TurfZones:FindFirstChild("Zone1"),
-        ["Garage2"] = workspace.TurfZones:FindFirstChild("Zone2"),
-        ["Garage3"] = workspace.TurfZones:FindFirstChild("Zone3"),
-        ["Garage4"] = workspace.TurfZones:FindFirstChild("Zone4"),
-        ["7/11"] = workspace["Map Files"].Buildings:FindFirstChild("7/11"),
-        ["Court"] = workspace["Map Files"].Buildings:FindFirstChild("Basketball Court")
-    }
-
-    -- Add everything inside "Map Files"
-    for _, obj in pairs(workspace["Map Files"]:GetChildren()) do
-        if obj:IsA("BasePart") and not locationsList[obj.Name] then
-            locationsList[obj.Name] = obj
-        end
-    end
-
-    -- Remove nil entries
-    for name, part in pairs(locationsList) do
-        if not part then
-            locationsList[name] = nil
-        end
-    end
-
-    -- Update Dropdown only if it is defined
-    if LocationDropdown then
-        LocationDropdown:Refresh(getTableKeys(locationsList))
-    end
-end
-
-
--- Initial update
-updateLocations()
-
-local LocationDropdown = LocationsTab:CreateDropdown({
-    Name = "Locations List",
-    Options = table.keys(locationsList),
-    CurrentOption = "",
-    MultipleOptions = false,
-    Flag = "LocationDropdown",
-    Callback = function(selected)
-        selectedLocation = selected[1] or ""
-    end
-})
-
-LocationsTab:CreateButton({
-    Name = "Teleport",
-    Callback = function()
-        if selectedLocation ~= "" then
-            local locationPart = locationsList[selectedLocation]
-            if locationPart then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = locationPart.CFrame
-                Rayfield:Notify({
-                    Title = "Teleport Success",
-                    Content = "Teleported to " .. selectedLocation,
-                    Duration = 4,
-                    Image = "check"
-                })
-            else
-                Rayfield:Notify({
-                    Title = "Error",
-                    Content = "Location not found.",
-                    Duration = 4,
-                    Image = "x"
-                })
-            end
-        else
-            Rayfield:Notify({
-                Title = "Error",
-                Content = "Please select a location.",
-                Duration = 4,
-                Image = "x"
-            })
-        end
-    end
-})
-
-LocationsTab:CreateButton({
-    Name = "Refresh Locations",
-    Callback = function()
-        updateLocations()
-        Rayfield:Notify({
-            Title = "Locations Updated",
-            Content = "Location list has been refreshed.",
-            Duration = 4,
-            Image = "refresh-cw"
-        })
-    end
-})
-
-
 
 -- Items Tab
 local ItemsTab = Window:CreateTab("Items", "shopping-cart")
