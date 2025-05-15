@@ -3,9 +3,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Lomi Hub - Urban RP 1.6",
+    Name = "Lomi Hub - Urban RP 1.7",
     Icon = "truck",
-    LoadingTitle = "Lomi Hub Urban RP 1.6",
+    LoadingTitle = "Lomi Hub Urban RP 1.7",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -166,7 +166,6 @@ local locationsList = {
     ["Storage"] = workspace.StorageSystem.Prompt.PromptHolder,
     ["Spawn"] = workspace.CitizenSpawnLocation,
     ["Jail"] = workspace.JailSpawnLocation,
-    ["Traphouse"] = workspace.Teleporter.Button_2,
     ["Site"] = workspace.DeliveryJob.BoxPickingJob.PickupBox,
     ["Police"] = workspace.TurfZones.PoliceZone,
     ["Garage1"] = workspace.TurfZones.Zone1,
