@@ -5,13 +5,13 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "Delivery Job Auto-Farm",
     Icon = "truck",
-    LoadingTitle = "Delivery Job Auto Farm 1.2.0",
+    LoadingTitle = "Delivery Job Auto Farm 1.2.1",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
     DisableBuildWarnings = false,
     ConfigurationSaving = {
-        Enabled = true,
+        Enabled = false,
         FolderName = "AutoFarmConfigs",
         FileName = "DeliveryJobAutoFarm"
     }
@@ -122,7 +122,7 @@ end
 
 local selectedItem = ""
 
-local ItemDropdown = BuySection:CreateDropdown({
+local ItemDropdown = ItemsTab:CreateDropdown({
     Name = "Items List",
     Options = itemsList,
     CurrentOption = "",
@@ -133,7 +133,7 @@ local ItemDropdown = BuySection:CreateDropdown({
     end
 })
 
-BuySection:CreateButton({
+ItemsTab:CreateButton({
     Name = "Buy Item",
     Callback = function()
         if selectedItem ~= "" then
