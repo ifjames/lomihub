@@ -5,7 +5,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "Delivery Job Auto-Farm",
     Icon = "truck",
-    LoadingTitle = "Delivery Job Auto Farm",
+    LoadingTitle = "Delivery Job Auto Farm 1.2.0",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -23,6 +23,7 @@ local AutoFarmSection = DeliveryJobTab:CreateSection("Auto-Farm Money")
 
 local AutoFarmEnabled = false
 local AutoFarmConnection
+local AutoFarmKeybind = "F"
 
 local function autoFarmCycle()
     local player = game.Players.LocalPlayer
@@ -91,6 +92,65 @@ DeliveryJobTab:CreateToggle({
             startAutoFarm()
         else
             stopAutoFarm()
+        end
+    end
+})
+
+DeliveryJobTab:CreateKeybind({
+    Name = "Auto-Farm Keybind",
+    CurrentKeybind = AutoFarmKeybind,
+    HoldToInteract = false,
+    Flag = "AutoFarmKeybind",
+    Callback = function()
+        AutoFarmEnabled = not AutoFarmEnabled
+        if AutoFarmEnabled then
+            startAutoFarm()
+        else
+            stopAutoFarm()
+        end
+    end
+})
+
+-- Items Tab
+local ItemsTab = Window:CreateTab("Items", "shopping-cart")
+local BuySection = ItemsTab:CreateSection("Buy Items")
+
+local itemsList = {}
+for _, item in pairs(game:GetService("ReplicatedStorage").Weapons:GetChildren()) do
+    table.insert(itemsList, item.Name)
+end
+
+local selectedItem = ""
+
+local ItemDropdown = BuySection:CreateDropdown({
+    Name = "Items List",
+    Options = itemsList,
+    CurrentOption = "",
+    MultipleOptions = false,
+    Flag = "ItemDropdown",
+    Callback = function(selected)
+        selectedItem = selected[1] or ""
+    end
+})
+
+BuySection:CreateButton({
+    Name = "Buy Item",
+    Callback = function()
+        if selectedItem ~= "" then
+            game:GetService("ReplicatedStorage").PurchaseEvent:FireServer(selectedItem)
+            Rayfield:Notify({
+                Title = "Purchase",
+                Content = "Purchased " .. selectedItem,
+                Duration = 4,
+                Image = "check"
+            })
+        else
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "Please select an item to purchase.",
+                Duration = 4,
+                Image = "x"
+            })
         end
     end
 })
