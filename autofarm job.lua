@@ -3,9 +3,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Lomi Hub - Urban RP 1.76",
+    Name = "Lomi Hub - Urban RP 1.77",
     Icon = "truck",
-    LoadingTitle = "Lomi Hub Urban RP 1.76",
+    LoadingTitle = "Lomi Hub Urban RP 1.77",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -196,7 +196,9 @@ local function updateLocations()
     end
 
     -- Update Dropdown
-    LocationDropdown:Refresh(table.keys(locationsList))
+    if LocationDropdown then
+        LocationDropdown:Refresh(table.keys(locationsList))
+    end
 end
 
 -- Initial update
