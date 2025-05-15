@@ -76,7 +76,7 @@ local function stopAutoFarm()
             Title = "Auto-Farm Status",
             Content = "Auto-Farm stopped",
             Duration = 4,
-            Image = "stop"
+            Image = "repeat"
         })
         AutoFarmConnection = nil
     end
