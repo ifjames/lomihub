@@ -5,7 +5,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
     Name = "Delivery Job Auto-Farm",
     Icon = "truck",
-    LoadingTitle = "Delivery Job Auto Farm 1.2.1",
+    LoadingTitle = "Delivery Job Auto Farm 1.2.3",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -24,8 +24,9 @@ local AutoFarmSection = DeliveryJobTab:CreateSection("Auto-Farm Money")
 local AutoFarmEnabled = false
 local AutoFarmConnection
 local AutoFarmKeybind = "F"
+local selectedJob = ""
 
-local function autoFarmCycle()
+local function cementJob()
     local player = game.Players.LocalPlayer
     local char = player.Character or player.CharacterAdded:Wait()
     local root = char:FindFirstChild("HumanoidRootPart")
@@ -35,7 +36,6 @@ local function autoFarmCycle()
     local jobLocation = workspace:FindFirstChild("DeliveryJob") and workspace.DeliveryJob:FindFirstChild("BoxPickingJob") and workspace.DeliveryJob.BoxPickingJob:FindFirstChild("Job")
 
     while AutoFarmEnabled do
-        -- Pickup Box
         if pickupBox and pickupBox:FindFirstChild("PickupPrompt") then
             root.CFrame = pickupBox.CFrame
             task.wait(0.5)
@@ -45,7 +45,6 @@ local function autoFarmCycle()
             task.wait(pickupBox.PickupPrompt.HoldDuration + 0.5)
         end
 
-        -- Deliver to Job Location
         if jobLocation and jobLocation:FindFirstChild("Part") and jobLocation.Part:FindFirstChild("ProximityPrompt") then
             root.CFrame = jobLocation.Part.CFrame
             task.wait(0.5)
@@ -53,6 +52,69 @@ local function autoFarmCycle()
                 fireproximityprompt(jobLocation.Part.ProximityPrompt)
             end)
             task.wait(jobLocation.Part.ProximityPrompt.HoldDuration + 0.5)
+        end
+    end
+end
+
+local function jntJob()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if not root then return end
+
+    local packageGiver = workspace:FindFirstChild("PackageGiver")
+    local locations = workspace:FindFirstChild("Locations")
+
+    while AutoFarmEnabled do
+        -- Pickup Package
+        if packageGiver and packageGiver:FindFirstChild("ProximityPrompt") then
+            root.CFrame = packageGiver.CFrame
+            task.wait(0.5)
+            pcall(function()
+                fireproximityprompt(packageGiver.ProximityPrompt)
+            end)
+            task.wait(packageGiver.ProximityPrompt.HoldDuration + 0.5)
+        end
+
+        -- Iterate through all locations
+        if locations then
+            for _, location in pairs(locations:GetChildren()) do
+                if location and location:FindFirstChild("ProximityPrompt") then
+                    root.CFrame = location.CFrame
+                    task.wait(0.5)
+                    pcall(function()
+                        fireproximityprompt(location.ProximityPrompt)
+                    end)
+                    task.wait(location.ProximityPrompt.HoldDuration + 0.5)
+                end
+            end
+        end
+    end
+end
+
+    local packageGiver = workspace:FindFirstChild("PackageGiver")
+    local locations = workspace:FindFirstChild("Locations")
+
+    while AutoFarmEnabled do
+        if packageGiver and packageGiver:FindFirstChild("ProximityPrompt") then
+            root.CFrame = packageGiver.CFrame
+            task.wait(0.5)
+            pcall(function()
+                fireproximityprompt(packageGiver.ProximityPrompt)
+            end)
+            task.wait(packageGiver.ProximityPrompt.HoldDuration + 0.5)
+        end
+
+        if locations then
+            local location = locations:GetChildren()[math.random(1, #locations:GetChildren())]
+            if location and location:FindFirstChild("ProximityPrompt") then
+                root.CFrame = location.CFrame
+                task.wait(0.5)
+                pcall(function()
+                    fireproximityprompt(location.ProximityPrompt)
+                end)
+                task.wait(location.ProximityPrompt.HoldDuration + 0.5)
+            end
         end
     end
 end
@@ -66,7 +128,11 @@ local function startAutoFarm()
             Image = "repeat"
         })
         AutoFarmEnabled = true
-        AutoFarmConnection = task.spawn(autoFarmCycle)
+        if selectedJob == "Cement Job" then
+            AutoFarmConnection = task.spawn(cementJob)
+        elseif selectedJob == "JNT Job" then
+            AutoFarmConnection = task.spawn(jntJob)
+        end
     end
 end
 
@@ -82,6 +148,17 @@ local function stopAutoFarm()
         AutoFarmConnection = nil
     end
 end
+
+DeliveryJobTab:CreateDropdown({
+    Name = "Select Job",
+    Options = {"Cement Job", "JNT Job"},
+    CurrentOption = "",
+    MultipleOptions = false,
+    Flag = "JobDropdown",
+    Callback = function(selected)
+        selectedJob = selected[1] or ""
+    end
+})
 
 DeliveryJobTab:CreateToggle({
     Name = "Auto-Farm Money",
