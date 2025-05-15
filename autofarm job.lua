@@ -26,18 +26,18 @@ local AutoFarmConnection
 
 local function startAutoFarm()
     if AutoFarmConnection then AutoFarmConnection:Disconnect() end
+    Rayfield:Notify({
+        Title = "Auto-Farm Status",
+        Content = "Auto-Farm started",
+        Duration = 4,
+        Image = "repeat"
+    })
+
     AutoFarmConnection = game:GetService("RunService").Heartbeat:Connect(function()
         if not AutoFarmEnabled then
             if AutoFarmConnection then AutoFarmConnection:Disconnect() end
             return
         end
-
-        Rayfield:Notify({
-            Title = "Auto-Farm Status",
-            Content = "Auto-Farm is ongoing...",
-            Duration = 4,
-            Image = "repeat"
-        })
 
         local player = game.Players.LocalPlayer
         local char = player.Character or player.CharacterAdded:Wait()
@@ -75,10 +75,18 @@ DeliveryJobTab:CreateToggle({
         AutoFarmEnabled = value
         if AutoFarmEnabled then
             startAutoFarm()
+        else
+            Rayfield:Notify({
+                Title = "Auto-Farm Status",
+                Content = "Auto-Farm stopped",
+                Duration = 4,
+                Image = "stop"
+            })
         end
     end
 })
 
+-- Misc Tab
 local MiscTab = Window:CreateTab("Misc", "settings")
 
 local MiscSection = MiscTab:CreateSection("Scripts")
@@ -97,4 +105,4 @@ MiscSection:CreateButton({
     end
 })
 
-Rayfield:LoadConfiguration()()
+Rayfield:LoadConfiguration()
