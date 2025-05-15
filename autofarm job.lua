@@ -1,9 +1,11 @@
+-- Auto-Farm Money Script with Rayfield UI
+-- Rayfield UI Setup
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
     Name = "Delivery Job Auto-Farm",
     Icon = "truck",
-    LoadingTitle = "Delivery Job Auto Farm 1.2.4",
+    LoadingTitle = "Lomi Hub Urban RP 1.5",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -64,36 +66,6 @@ local function jntJob()
     local locations = workspace:FindFirstChild("Locations")
 
     while AutoFarmEnabled do
-        -- Pickup Package
-        if packageGiver and packageGiver:FindFirstChild("ProximityPrompt") then
-            root.CFrame = packageGiver.CFrame
-            task.wait(0.5)
-            pcall(function()
-                fireproximityprompt(packageGiver.ProximityPrompt)
-            end)
-            task.wait(packageGiver.ProximityPrompt.HoldDuration + 0.5)
-        end
-
-        -- Iterate through all locations
-        if locations then
-            for _, location in pairs(locations:GetChildren()) do
-                if location and location:FindFirstChild("ProximityPrompt") then
-                    root.CFrame = location.CFrame
-                    task.wait(0.5)
-                    pcall(function()
-                        fireproximityprompt(location.ProximityPrompt)
-                    end)
-                    task.wait(location.ProximityPrompt.HoldDuration + 0.5)
-                end
-            end
-        end
-    end
-end
-
-    local packageGiver = workspace:FindFirstChild("PackageGiver")
-    local locations = workspace:FindFirstChild("Locations")
-
-    while AutoFarmEnabled do
         if packageGiver and packageGiver:FindFirstChild("ProximityPrompt") then
             root.CFrame = packageGiver.CFrame
             task.wait(0.5)
@@ -115,6 +87,7 @@ end
             end
         end
     end
+end
 
 local function startAutoFarm()
     if not AutoFarmConnection then
