@@ -79,4 +79,22 @@ DeliveryJobTab:CreateToggle({
     end
 })
 
-Rayfield:LoadConfiguration()
+local MiscTab = Window:CreateTab("Misc", "settings")
+
+local MiscSection = MiscTab:CreateSection("Scripts")
+
+MiscSection:CreateButton({
+    Name = "Infinite Yield",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+    end
+})
+
+MiscSection:CreateButton({
+    Name = "Cobalt Spy",
+    Callback = function()
+        loadstring(game:HttpGet("https://github.com/notpoiu/cobalt/releases/latest/download/Cobalt.luau"))()
+    end
+})
+
+Rayfield:LoadConfiguration()()
