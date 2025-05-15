@@ -1,11 +1,9 @@
--- Auto-Farm Money Script with Rayfield UI
--- Rayfield UI Setup
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
     Name = "Delivery Job Auto-Farm",
     Icon = "truck",
-    LoadingTitle = "Delivery Job Auto Farm 1.2.3",
+    LoadingTitle = "Delivery Job Auto Farm 1.2.4",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -117,7 +115,6 @@ end
             end
         end
     end
-end
 
 local function startAutoFarm()
     if not AutoFarmConnection then
