@@ -3,9 +3,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Lomi Hub - Urban RP 1.77",
+    Name = "Lomi Hub - Urban RP 1.78",
     Icon = "truck",
-    LoadingTitle = "Lomi Hub Urban RP 1.77",
+    LoadingTitle = "Lomi Hub Urban RP 1.78",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -165,6 +165,14 @@ local LocationsSection = LocationsTab:CreateSection("Teleport to Locations")
 local locationsList = {}
 local selectedLocation = ""
 
+local function getTableKeys(tbl)
+    local keys = {}
+    for key, _ in pairs(tbl) do
+        table.insert(keys, key)
+    end
+    return keys
+end
+
 local function updateLocations()
     locationsList = {
         ["Storage"] = workspace.StorageSystem:FindFirstChild("Prompt") and workspace.StorageSystem.Prompt:FindFirstChild("PromptHolder"),
@@ -195,11 +203,12 @@ local function updateLocations()
         end
     end
 
-    -- Update Dropdown
+    -- Update Dropdown only if it is defined
     if LocationDropdown then
-        LocationDropdown:Refresh(table.keys(locationsList))
+        LocationDropdown:Refresh(getTableKeys(locationsList))
     end
 end
+
 
 -- Initial update
 updateLocations()
