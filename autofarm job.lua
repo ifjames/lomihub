@@ -3,9 +3,9 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-    Name = "Lomi Hub - Urban RP 1.7",
+    Name = "Lomi Hub - Urban RP 1.75",
     Icon = "truck",
-    LoadingTitle = "Lomi Hub Urban RP 1.7",
+    LoadingTitle = "Lomi Hub Urban RP 1.75",
     LoadingSubtitle = "by Lomi",
     Theme = "Default",
     DisableRayfieldPrompts = false,
@@ -162,28 +162,45 @@ DeliveryJobTab:CreateKeybind({
 local LocationsTab = Window:CreateTab("Locations", "map-pin")
 local LocationsSection = LocationsTab:CreateSection("Teleport to Locations")
 
-local locationsList = {
-    ["Storage"] = workspace.StorageSystem.Prompt.PromptHolder,
-    ["Spawn"] = workspace.CitizenSpawnLocation,
-    ["Jail"] = workspace.JailSpawnLocation,
-    ["Site"] = workspace.DeliveryJob.BoxPickingJob.PickupBox,
-    ["Police"] = workspace.TurfZones.PoliceZone,
-    ["Garage1"] = workspace.TurfZones.Zone1,
-    ["Garage2"] = workspace.TurfZones.Zone2,
-    ["Garage3"] = workspace.TurfZones.Zone3,
-    ["Garage4"] = workspace.TurfZones.Zone4,
-    ["7/11"] = workspace["Map Files"].Buildings["7/11"],
-    ["Court"] = workspace["Map Files"].Buildings["Basketball Court"]
-}
+local locationsList = {}
+local selectedLocation = ""
 
--- Add everything inside "Map Files"
-for _, obj in pairs(workspace["Map Files"]:GetChildren()) do
-    if obj:IsA("BasePart") then
-        locationsList[obj.Name] = obj
+local function updateLocations()
+    locationsList = {
+        ["Storage"] = workspace.StorageSystem:FindFirstChild("Prompt") and workspace.StorageSystem.Prompt:FindFirstChild("PromptHolder"),
+        ["Spawn"] = workspace:FindFirstChild("CitizenSpawnLocation"),
+        ["Jail"] = workspace:FindFirstChild("JailSpawnLocation"),
+        ["Traphouse"] = workspace.Teleporter:FindFirstChild("Button_2"),
+        ["Site"] = workspace.DeliveryJob.BoxPickingJob:FindFirstChild("PickupBox"),
+        ["Police"] = workspace.TurfZones:FindFirstChild("PoliceZone"),
+        ["Garage1"] = workspace.TurfZones:FindFirstChild("Zone1"),
+        ["Garage2"] = workspace.TurfZones:FindFirstChild("Zone2"),
+        ["Garage3"] = workspace.TurfZones:FindFirstChild("Zone3"),
+        ["Garage4"] = workspace.TurfZones:FindFirstChild("Zone4"),
+        ["7/11"] = workspace["Map Files"].Buildings:FindFirstChild("7/11"),
+        ["Court"] = workspace["Map Files"].Buildings:FindFirstChild("Basketball Court")
+    }
+
+    -- Add everything inside "Map Files"
+    for _, obj in pairs(workspace["Map Files"]:GetChildren()) do
+        if obj:IsA("BasePart") and not locationsList[obj.Name] then
+            locationsList[obj.Name] = obj
+        end
     end
+
+    -- Remove nil entries
+    for name, part in pairs(locationsList) do
+        if not part then
+            locationsList[name] = nil
+        end
+    end
+
+    -- Update Dropdown
+    LocationDropdown:UpdateOptions(table.keys(locationsList))
 end
 
-local selectedLocation = ""
+-- Initial update
+updateLocations()
 
 local LocationDropdown = LocationsTab:CreateDropdown({
     Name = "Locations List",
@@ -227,6 +244,20 @@ LocationsTab:CreateButton({
         end
     end
 })
+
+LocationsTab:CreateButton({
+    Name = "Refresh Locations",
+    Callback = function()
+        updateLocations()
+        Rayfield:Notify({
+            Title = "Locations Updated",
+            Content = "Location list has been refreshed.",
+            Duration = 4,
+            Image = "refresh-cw"
+        })
+    end
+})
+
 
 
 -- Items Tab
