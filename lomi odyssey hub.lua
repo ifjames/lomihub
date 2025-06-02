@@ -1,11 +1,7 @@
 Version = "indev-0.9.1"
 Startup = tick()
 
-local repo = 'https://raw.githubusercontent.com/DaniHRE/LinoriaLib/main/'
-
-local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
-local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
-local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -401,102 +397,121 @@ local AutoFishCoroutine
 local AutoEatCoroutine
 local AutoEnemyCoro
 
-local Window = Library:CreateWindow({
-    Title = 'Arcane Odyssey | ' .. Version,
-    Center = true,
-    AutoShow = true,
+local Window = Rayfield:CreateWindow({
+    Name = "Arcane Odyssey | " .. Version,
+    LoadingTitle = "Loading Arcane Odyssey Hub...",
+    LoadingSubtitle = "by Lomi",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "ArcaneOdysseyHub",
+        FileName = "Config"
+    },
+    KeySystem = false,
+    KeySettings = {
+        Title = "Arcane Odyssey Hub",
+        Subtitle = "Key System",
+        Note = "No key required",
+        FileName = "ArcaneOdysseyKey",
+        SaveKey = true,
+        GrabKeyFromSite = false,
+        Key = {"NoKeyRequired"}
+    }
 })
 
 -- Create the tabs
-local Tabs = {
-    Main = Window:AddTab('Main'),
-    UISettings = Window:AddTab('UI Settings')
-}
+local MainTab = Window:CreateTab("Main", "sword")
+local UISettingsTab = Window:CreateTab("UI Settings", "settings")
 
--- Add the left and right groupboxes to the Main tab
-local CombatGroupBox = Tabs.Main:AddLeftGroupbox('Combat')
-local TeleportsGroupBox = Tabs.Main:AddLeftGroupbox('Teleports')
-local CharacterGroupBox = Tabs.Main:AddLeftGroupbox('Character')
-local NPCGroupBox = Tabs.Main:AddRightGroupbox('NPCs')
-local GameGroupBox = Tabs.Main:AddRightGroupbox('Game')
+-- Create sections for Main tab
+local CombatSection = MainTab:CreateSection("Combat")
+local TeleportsSection = MainTab:CreateSection("Teleports")
+local CharacterSection = MainTab:CreateSection("Character")
+local NPCSection = MainTab:CreateSection("NPCs")
+local GameSection = MainTab:CreateSection("Game")
+local EnvironmentSection = MainTab:CreateSection("Environment")
 
-CombatGroupBox:AddToggle('KillAura', {
-    Text = 'NPC Kill Aura',
-    Default = false,
-    Tooltip = 'Spam hits nearest NPC enemy.'
-})
-
-CombatGroupBox:AddToggle('PlrKillAura', {
-    Text = 'Player Kill Aura',
-    Default = false,
-    Tooltip = 'Spam hits nearest player.'
-})
-
-CombatGroupBox:AddToggle('TPAura', {
-    Text = 'TP Aura',
-    Default = false,
-    Tooltip = 'Additionally loop tps to killaura target.'
-})
-
-CombatGroupBox:AddToggle('NoKnockback', {
-    Text = 'No Knockback',
-    Default = false,
-    Tooltip = 'Tries to prevent knockback.'
-})
-
-CombatGroupBox:AddToggle('NoWeaponDamage', {
-    Text = 'Godmode',
-    Default = false,
-    Tooltip = 'You cannot take damage.'
-})
-
-CombatGroupBox:AddToggle('DamageMultiplier', {
-    Text = 'Damage Multiplier',
-    Default = false,
-    Tooltip = 'Multiplies your damage output.',
+-- Combat Section
+CombatSection:CreateToggle({
+    Name = "NPC Kill Aura",
+    CurrentValue = false,
+    Flag = "KillAura",
     Callback = function(Value)
+        Toggles.KillAura.Value = Value
+    end
+})
+
+CombatSection:CreateToggle({
+    Name = "Player Kill Aura",
+    CurrentValue = false,
+    Flag = "PlrKillAura",
+    Callback = function(Value)
+        Toggles.PlrKillAura.Value = Value
+    end
+})
+
+CombatSection:CreateToggle({
+    Name = "TP Aura",
+    CurrentValue = false,
+    Flag = "TPAura",
+    Callback = function(Value)
+        Toggles.TPAura.Value = Value
+    end
+})
+
+CombatSection:CreateToggle({
+    Name = "No Knockback",
+    CurrentValue = false,
+    Flag = "NoKnockback",
+    Callback = function(Value)
+        Toggles.NoKnockback.Value = Value
+    end
+})
+
+CombatSection:CreateToggle({
+    Name = "Godmode",
+    CurrentValue = false,
+    Flag = "NoWeaponDamage",
+    Callback = function(Value)
+        Toggles.NoWeaponDamage.Value = Value
+    end
+})
+
+CombatSection:CreateToggle({
+    Name = "Damage Multiplier",
+    CurrentValue = false,
+    Flag = "DamageMultiplier",
+    Callback = function(Value)
+        Toggles.DamageMultiplier.Value = Value
         if Value then
-            Library:Notify("Warning!", "This multiplies damage against players, use it wisely.")
+            Rayfield:Notify({
+                Title = "Warning!",
+                Content = "This multiplies damage against players, use it wisely.",
+                Duration = 6.5,
+                Image = "warning"
+            })
         end
     end
 })
 
-CombatGroupBox:AddToggle('NoWeaponDamage', {
-    Text = 'Godmode',
-    Default = false,
-    Tooltip = 'You cannot take damage.'
-})
-
-CombatGroupBox:AddSlider('DamageMultiplierAmount', {
-    Text = 'Damage Multiplier Amount',
-    Default = 1,
-    Min = 1,
-    Max = 15,
-    Rounding = 1,
-    Compact = false
-})
-
--- Add the toggles to the NPC groupbox
-NPCGroupBox:AddToggle('BlindNPCs', {
-    Text = 'Blind NPCs',
-    Default = false,
-    Tooltip = 'Makes NPCs blind'
-})
-
-NPCGroupBox:AddToggle('ImmobileNPCs', {
-    Text = 'Immobile NPCs',
-    Default = false,
-    Tooltip = 'Makes NPCs immobile'
-})
-
-local HungerValue = 100
-local Eating = false
-
-CharacterGroupBox:AddToggle('AutoEat', {
-    Text = 'Auto Eat',
-    Default = false,
-    Tooltip = 'Automatically eats fruits/other food when hungry.',
+CombatSection:CreateSlider({
+    Name = "Damage Multiplier Amount",
+    Range = {1, 15},
+    Increment = 1,
+    Suffix = "x",
+    CurrentValue = 1,
+    Flag = "DamageMultiplierAmount",
     Callback = function(Value)
+        Options.DamageMultiplierAmount.Value = Value
+    end
+})
+
+-- Character Section
+CharacterSection:CreateToggle({
+    Name = "Auto Eat",
+    CurrentValue = false,
+    Flag = "AutoEat",
+    Callback = function(Value)
+        Toggles.AutoEat.Value = Value
         if Value then
             AutoEatCoroutine = coroutine.create(function()
                 while wait(1) do
@@ -504,8 +519,6 @@ CharacterGroupBox:AddToggle('AutoEat', {
                     HungerValue = HV
                     if HungerValue < 50 and Eating == false then
                         Eating = true
-                        
-
                         repeat
                             Debug("Starving!")
                             game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.Backquote,false,game)
@@ -524,39 +537,9 @@ CharacterGroupBox:AddToggle('AutoEat', {
                                 end
                             end
                         until tonumber(LocalPlayer.PlayerGui.MainGui.UI.HUD.Anchor.HungerBar.Back.Amount.Text) >= 70 
-
-                        
                         Eating = false
                     end
                 end
-                -- Remotes.UI.UpdateHunger.OnClientEvent:Connect(function(HV)
-                --     Debug(HV)
-                --     HungerValue = HV
-                --     if HungerValue < 50 and Eating == false then
-                --         Eating = true
-                --         Debug("Starving!")
-                --         game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.Backquote,false,game)
-                --         game:GetService("VirtualInputManager"):SendKeyEvent(false,Enum.KeyCode.Backquote,false,game)
-                --         wait(0.5)
-                --         local Food = GetFoodTools()
-                --         wait(0.5)
-                --         game:GetService("VirtualInputManager"):SendKeyEvent(true,Enum.KeyCode.Backquote,false,game)
-                --         game:GetService("VirtualInputManager"):SendKeyEvent(false,Enum.KeyCode.Backquote,false,game)
-                --         Debug(#Food)
-                --         local Count = 1
-                --         for i,v in pairs(Food) do
-                --             if not v.Name:find("Buffet") and not v.Name:find("Dinner") and not v.Name:find("Combo") then
-                --                 Remotes:WaitForChild("Misc"):WaitForChild("ToolAction"):FireServer(v)                                
-                --                 task.wait(.5)
-                --                 Count += 1
-                --                 if Count >= 10 then
-                --                     break
-                --                 end
-                --             end
-                --         end
-                --         Eating = false
-                --     end
-                -- end)
             end)
             coroutine.resume(AutoEatCoroutine)
         else
@@ -568,10 +551,10 @@ CharacterGroupBox:AddToggle('AutoEat', {
     end
 })
 
-CharacterGroupBox:AddToggle('BoatFly', {
-    Text = 'Boat/Character Fly',
-    Default = false,
-    Tooltip = 'Makes you 💨',
+CharacterSection:CreateToggle({
+    Name = "Boat/Character Fly",
+    CurrentValue = false,
+    Flag = "BoatFly",
     Callback = function(Value)
         if Value then
             NOFLY()
@@ -583,23 +566,22 @@ CharacterGroupBox:AddToggle('BoatFly', {
     end
 })
 
-CharacterGroupBox:AddSlider('FlySpeed', {
-    Text = 'Fly Speed',
-    Default = 1,
-    Min = 1,
-    Max = 10,
-    Rounding = 1,
-    Compact = false
+CharacterSection:CreateSlider({
+    Name = "Fly Speed",
+    Range = {1, 10},
+    Increment = 1,
+    Suffix = "x",
+    CurrentValue = 1,
+    Flag = "FlySpeed",
+    Callback = function(Value)
+        vehicleflyspeed = Value
+    end
 })
 
-Options.FlySpeed:OnChanged(function()
-    vehicleflyspeed = Options.FlySpeed.Value
-end)
-
-CharacterGroupBox:AddToggle('InfiniteStamina', {
-    Text = 'Infinite Stamina',
-    Default = false,
-    Tooltip = 'Gives you infinite stamina.',
+CharacterSection:CreateToggle({
+    Name = "Infinite Stamina",
+    CurrentValue = false,
+    Flag = "InfiniteStamina",
     Callback = function(Value)
         if Value then
             Remotes:WaitForChild("Combat"):WaitForChild("StaminaCost"):FireServer(-1000,"Dodge")
@@ -609,24 +591,24 @@ CharacterGroupBox:AddToggle('InfiniteStamina', {
     end
 })
 
-CharacterGroupBox:AddToggle('Jesus', {
-    Text = 'Jesus',
-    Default = false,
-    Tooltip = 'Lets you walk on water.',
+CharacterSection:CreateToggle({
+    Name = "Jesus",
+    CurrentValue = false,
+    Flag = "Jesus",
     Callback = function(Value)
         if Value then
             local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
             local hrp = char:WaitForChild("HumanoidRootPart")
-			local newPart = Instance.new("Part")
-			newPart.Name = "JesusToggle"
-			newPart.Anchored = true
-			newPart.CanCollide = true
-			newPart.Transparency = 1
-			newPart.Size = Vector3.new(50, 1, 50)
-			newPart.Parent = workspace
+            local newPart = Instance.new("Part")
+            newPart.Name = "JesusToggle"
+            newPart.Anchored = true
+            newPart.CanCollide = true
+            newPart.Transparency = 1
+            newPart.Size = Vector3.new(50, 1, 50)
+            newPart.Parent = workspace
             task.spawn(function()
                 while Value do
-                    if hrp.Position.Y >= 405 then -- Stop player from using jesus while driving
+                    if hrp.Position.Y >= 405 then
                         newPart.CanCollide = false
                     else
                         newPart.CanCollide = true
@@ -646,9 +628,9 @@ CharacterGroupBox:AddToggle('Jesus', {
     end
 })
 
-CharacterGroupBox:AddButton({
-    Text = 'Hide Name/Level from other players',
-    Func = function()
+CharacterSection:CreateButton({
+    Name = "Hide Name/Level from other players",
+    Callback = function()
         local Overhead = FindChildByIndexSequence(LocalPlayer.Character, {"Head","Overhead"})
         if Overhead then
             local OverheadClone = Overhead:Clone()
@@ -656,267 +638,99 @@ CharacterGroupBox:AddButton({
             OverheadClone.Parent = Overhead.Parent
             Overhead:ClearAllChildren()
         end
-    end,
-    DoubleClick = false,
-    Tooltip = 'Hides the UI over your head from other players, makes reporting impossible.'
+    end
 })
 
-local IslandOffsets = {
-    ["Mount Othrys"] = Vector3.new(0, 28063, -10),
-    ["Harvest Island"] = Vector3.new(-234, -112, 99),
-    ["Ravenna"] = Vector3.new(0, -500, 0)
-}
-
-TeleportsGroupBox:AddDropdown('IslandsDropdown', {
-    AllowNull = true,
-    Values = Islands,
-    Default = nil,
-    Multi = false,
-    Text = 'Teleport to island',
-    Tooltip = 'List of islands (Automatically updated)',
-})
-
-local HeartbeatConnection
-Options.IslandsDropdown:OnChanged(function()
-    if Options.IslandsDropdown.Value ~= nil then
-        local Island = workspace.Map:FindFirstChild(Options.IslandsDropdown.Value)
-        if Island then
-            LoadArea(Island.Center.Position, false)
-            if HeartbeatConnection then
-                HeartbeatConnection:Disconnect()
-            end
-            HeartbeatConnection = RunService.Heartbeat:Connect(function()
-                TP(Island.Center.Position + Vector3.new(0,255,0))
-            end)
-            repeat task.wait() until Island:FindFirstChild("Notes")
-            for i = 10,1,-1 do
-                for i,v in pairs(LocalPlayer.Character:GetDescendants()) do
-                    if v:IsA("BasePart") then
-                        v.Velocity = Vector3.zero
-                    end
+-- Teleports Section
+TeleportsSection:CreateDropdown({
+    Name = "Teleport to island",
+    Options = Islands,
+    CurrentOption = nil,
+    Flag = "IslandsDropdown",
+    Callback = function(Value)
+        if Value ~= nil then
+            local Island = workspace.Map:FindFirstChild(Value)
+            if Island then
+                LoadArea(Island.Center.Position, false)
+                if HeartbeatConnection then
+                    HeartbeatConnection:Disconnect()
                 end
-                task.wait(0.1)
-            end
-            HeartbeatConnection:Disconnect()
-            HeartbeatConnection = nil
-            if IslandOffsets[Island.Name] then
-                TP(Island.Center.Position - IslandOffsets[Island.Name])
+                HeartbeatConnection = RunService.Heartbeat:Connect(function()
+                    TP(Island.Center.Position + Vector3.new(0,255,0))
+                end)
+                repeat task.wait() until Island:FindFirstChild("Notes")
+                for i = 10,1,-1 do
+                    for i,v in pairs(LocalPlayer.Character:GetDescendants()) do
+                        if v:IsA("BasePart") then
+                            v.Velocity = Vector3.zero
+                        end
+                    end
+                    task.wait(0.1)
+                end
+                HeartbeatConnection:Disconnect()
+                HeartbeatConnection = nil
+                if IslandOffsets[Island.Name] then
+                    TP(Island.Center.Position - IslandOffsets[Island.Name])
+                end
             end
         end
-        Options.IslandsDropdown:SetValue(nil)
     end
-end)
+})
 
-TeleportsGroupBox:AddButton({
-    Text = 'Teleport to current story quest',
-    Func = function()
+TeleportsSection:CreateButton({
+    Name = "Teleport to current story quest",
+    Callback = function()
         local StoryMarker = GetCurrentStoryMarker()
         if StoryMarker then
             LoadArea(StoryMarker.Position, false)
             TP(StoryMarker)
         end
-    end,
-    DoubleClick = false,
-    Tooltip = 'Teleports you to the next story marker, if it exists.'
+    end
 })
 
-TeleportsGroupBox:AddButton({
-    Text = 'Teleport to ship',
-    Func = function()
+TeleportsSection:CreateButton({
+    Name = "Teleport to ship",
+    Callback = function()
         TP(GetShip().PrimaryPart.Position + Vector3.new(0,20,0))
-    end,
-    DoubleClick = false,
-    Tooltip = 'Teleports you to your boat, if it exists.'
+    end
 })
 
-TeleportsGroupBox:AddButton({
-    Text = 'Teleport to current quest',
-    Func = function()
+TeleportsSection:CreateButton({
+    Name = "Teleport to current quest",
+    Callback = function()
         local QuestMarker = GetCurrentQuestMarker()
         if QuestMarker then
             LoadArea(QuestMarker.Position, false)
             TP(QuestMarker)
         end
-    end,
-    DoubleClick = false,
-    Tooltip = 'Teleports you to the next quest marker, if it exists.'
-})
-
-local HBCALC
-TeleportsGroupBox:AddToggle('AutoLostCargo', {
-    Text = 'Auto Lost Cargo [RISKY]',
-    Default = false,
-    Tooltip = 'Teleports you to all lost cargo loots it.',
-    Callback = function(Value)
-        if Value then
-            local LastCargoPos = LocalPlayer.Character.HumanoidRootPart.Position
-            AutoLostCargoCoroutine = coroutine.create(function()
-                
-                while wait(1) do
-                    if LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and LocalPlayer.Character.Humanoid.Health > 0 and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local ClosestCargo = GetClosestLostCargo()
-                        if ClosestCargo then
-
-                            local PrimaryPart = ClosestCargo
-                
-                            if LastCargoPos ~= nil and (LastCargoPos - PrimaryPart.Position).Magnitude > 10 then
-                                local TTW = math.abs(((LastCargoPos - PrimaryPart.Position).Magnitude)/70)
-                                if TTW < 90 then
-                                    if HBCALC then
-                                        HBCALC:Disconnect()
-                                        HBCALC = nil
-                                    end
-                                    Library:Notify("Waiting for anticheat heat to dissipate... [" .. tostring(Round(TTW,2)) .. "]", TTW/2)
-                                    if not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                                        repeat wait() until LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                    end
-                                    HBCALC = HeartbeatTP(LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0,2000,0))
-                                    wait(TTW)
-                                    if HBCALC then
-                                        HBCALC:Disconnect()
-                                        HBCALC = nil
-                                    end
-                                    if not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                                        repeat wait() until LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                    end
-                                    LocalPlayer.Character.HumanoidRootPart.Anchored = false
-                                else
-                                    continue
-                                end
-                            end
-                            
-                            local Prompt = PrimaryPart:FindFirstChildOfClass("ProximityPrompt")
-                            
-                            if Prompt then
-                                if HBCALC then
-                                    HBCALC:Disconnect()
-                                    HBCALC = nil
-                                end
-                                LastCargoPos = PrimaryPart.Position
-                                HBCALC = HeartbeatTP(PrimaryPart.Position + Vector3.new(0,5,0))
-                                task.wait(0.2)
-                                fireproximityprompt(Prompt,math.random(1,2))
-                            end
-                        end
-                    end
-                end
-            end)
-            coroutine.resume(AutoLostCargoCoroutine)
-        else
-            if AutoLostCargoCoroutine then
-                if HBCALC then
-                    HBCALC:Disconnect()
-                    HBCALC = nil
-                end
-                coroutine.close(AutoLostCargoCoroutine)
-                AutoChestCoroutine = nil
-            end
-        end
     end
 })
 
-local HBCAC
-TeleportsGroupBox:AddToggle('AutoChest', {
-    Text = 'Auto Chests [RISKY]',
-    Default = false,
-    Tooltip = 'Teleports you to all chests loaded and loots them.',
+-- Game Section
+GameSection:CreateToggle({
+    Name = "Auto-Skip Dialog",
+    CurrentValue = false,
+    Flag = "SkipDialog",
     Callback = function(Value)
-        if Value then
-            AutoChestCoroutine = coroutine.create(function()
-                local LastChestPos = LocalPlayer.Character.HumanoidRootPart.Position
-                while wait(1) do
-                    if LocalPlayer and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and LocalPlayer.Character.Humanoid.Health > 0 and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local ClosestChest = GetClosestChest()
-                        if ClosestChest then
-
-                            local PrimaryPart = ClosestChest.PrimaryPart
-                
-                            if LastChestPos ~= nil and (LastChestPos - PrimaryPart.Position).Magnitude > 10 then
-                                local TTW = math.abs(((LastChestPos - PrimaryPart.Position).Magnitude)/90)
-                                --if TTW < 60 then
-                                    Library:Notify("Waiting for anticheat heat to dissipate... [" .. tostring(Round(TTW,2)) .. "]", TTW/2)
-                                    if not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                                        repeat wait() until LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                    end
-                                    if HBCAC then
-                                        HBCAC:Disconnect()
-                                        HBCAC = nil
-                                    end
-                                    HBCAC = HeartbeatTP(LocalPlayer.Character.HumanoidRootPart.Position + Vector3.new(0,2000,0))
-                                    wait(TTW)
-                                    if not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                                        repeat wait() until LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                                    end
-                                    if HBCAC then
-                                        HBCAC:Disconnect()
-                                        HBCAC = nil
-                                    end
-                                --else
-                                    --continue
-                                --end
-                            end
-                
-                            local Prompt = PrimaryPart:FindFirstChild("Prompt")
-                
-                            if Prompt then
-                                if HBCAC then
-                                    HBCAC:Disconnect()
-                                    HBCAC = nil
-                                end
-                                LastChestPos = PrimaryPart.Position
-                                HBCAC = HeartbeatTP(PrimaryPart.Position - Vector3.new(0,6,0))
-                                --Chests = SortByDistance(Chests)
-                                task.wait(0.2)
-                                fireproximityprompt(Prompt,math.random(1,2))
-                            end
-                        end
-                    end
-                end
-            end)
-            coroutine.resume(AutoChestCoroutine)
-        else
-            if HBCAC then
-                HBCAC:Disconnect()
-                HBCAC = nil
-            end
-            coroutine.close(AutoChestCoroutine)
-            AutoChestCoroutine = nil
-            LocalPlayer.Character.HumanoidRootPart.Anchored = false
-            for i = 10,1,-1 do
-                for i,v in pairs(LocalPlayer.Character:GetDescendants()) do
-                    if v:IsA("BasePart") then
-                        v.Velocity = Vector3.zero
-                    end
-                end
-                task.wait(0.1)
-            end
-        end
+        Toggles.SkipDialog.Value = Value
     end
 })
 
-TeleportsGroupBox:AddToggle('InstantProximityPrompt', {
-    Text = 'Instant Interact',
-    Default = false,
-    Tooltip = 'Makes all proximityprompts instant.',
-})
-
-GameGroupBox:AddToggle('SkipDialog', {
-    Text = 'Auto-Skip Dialog',
-    Default = false,
-    Tooltip = 'May make choices you don\'t want! Make sure to disable for important story dialog.',
-})
-
-GameGroupBox:AddToggle('AllFarm', {
-    Text = 'Kill ALL enemies',
-    Default = false,
-    Tooltip = 'Makes Auto-Kill target all enemies.',
-})
-
-GameGroupBox:AddToggle('EnemyFarm', {
-    Text = 'Auto-Kill Enemies',
-    Default = false,
-    Tooltip = 'Automatically Kill Selected Enemies',
+GameSection:CreateToggle({
+    Name = "Kill ALL enemies",
+    CurrentValue = false,
+    Flag = "AllFarm",
     Callback = function(Value)
+        Toggles.AllFarm.Value = Value
+    end
+})
+
+GameSection:CreateToggle({
+    Name = "Auto-Kill Enemies",
+    CurrentValue = false,
+    Flag = "EnemyFarm",
+    Callback = function(Value)
+        Toggles.EnemyFarm.Value = Value
         if Value then
             AutoEnemyCoro = coroutine.create(function()
                 while wait(1) do
@@ -962,78 +776,60 @@ GameGroupBox:AddToggle('EnemyFarm', {
     end
 })
 
-GameGroupBox:AddDropdown('EnemyDropDown', {
-    AllowNull = true,
-    Values = Enemies,
-    Default = nil,
-    Multi = true,
-    Text = 'Teleport to enemies',
-    Tooltip = 'List of Enemies (Automatically updated)',
+GameSection:CreateDropdown({
+    Name = "Teleport to enemies",
+    Options = Enemies,
+    CurrentOption = nil,
+    MultipleOptions = true,
+    Flag = "EnemyDropDown",
+    Callback = function(Value)
+        Options.EnemyDropDown.Value = Value
+    end
 })
 
--- GameGroupBox:AddButton({
---     Text = 'Update Enemy list',
---     Func = function()
---         EnemyDropDownObj:SetValues(GetEnemies())
---     end,
---     DoubleClick = false,
---     Tooltip = "Updates enemy list."
--- })
-
-GameGroupBox:AddButton({
-    Text = 'Rejoin',
-    Func = function()
+GameSection:CreateButton({
+    Name = "Rejoin",
+    Callback = function()
         TeleportService:Teleport(12604352060, LocalPlayer, tonumber(Bin.File.Value) or 1)
-    end,
-    DoubleClick = false,
-    Tooltip = "Rejoins the server you're currently in."
+    end
 })
 
-GameGroupBox:AddButton({
-    Text = 'Serverhop',
-    Func = function()
+GameSection:CreateButton({
+    Name = "Serverhop",
+    Callback = function()
         local srvHop = loadstring(game:HttpGet('https://raw.githubusercontent.com/AlternateYT/Roblox-Scripts/main/Serverhop%20Module.lua'))()
         srvHop:Hop(game.PlaceId, tonumber(Bin.File.Value) or 1)
-    end,
-    DoubleClick = false,
-    Tooltip = "Server hops to a different server."
+    end
 })
 
-GameGroupBox:AddButton({
-    Text = 'Discover all islands',
-    Func = function()
+GameSection:CreateButton({
+    Name = "Discover all islands",
+    Callback = function()
         for i,v in pairs(workspace.Map:GetChildren()) do
             if v:IsA("Folder") and v:FindFirstChild("DetailsLoaded") then
                 Remotes:WaitForChild("Misc"):WaitForChild("UpdateLastSeen"):FireServer(v.Name, "")             
             end
         end
-    end,
-    DoubleClick = false,
-    Tooltip = 'Loads all islands, discovering them.'
+    end
 })
 
-local EnvGroupBox = Tabs.Main:AddRightGroupbox('Enviornment')
-
-if LoadNPC then
-    EnvGroupBox:AddButton({
-        Text = 'Load nearby NPCs',
-        Func = function()
-            for i,NPC in pairs(workspace.NPCs:GetChildren()) do
-                if NPC:FindFirstChild("CF") and NPC:IsA("Model") and (NPC.CF.Value.p - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 1000 then
-                    pcall(LoadNPC, NPC, NPC.CF.Value.p)
-                    pcall(LoadArea, NPC.CF.Value.p, false)
-                end
+-- Environment Section
+EnvironmentSection:CreateButton({
+    Name = "Load nearby NPCs",
+    Callback = function()
+        for i,NPC in pairs(workspace.NPCs:GetChildren()) do
+            if NPC:FindFirstChild("CF") and NPC:IsA("Model") and (NPC.CF.Value.p - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 1000 then
+                pcall(LoadNPC, NPC, NPC.CF.Value.p)
+                pcall(LoadArea, NPC.CF.Value.p, false)
             end
-        end,
-        DoubleClick = false,
-        Tooltip = 'Loads all nearby NPCs instantly.'
-    })
-end
+        end
+    end
+})
 
-EnvGroupBox:AddToggle('BadLighting', {
-    Text = 'Optimize Lighting',
-    Default = false,
-    Tooltip = 'Disables future lighting and global shadows.',
+EnvironmentSection:CreateToggle({
+    Name = "Optimize Lighting",
+    CurrentValue = false,
+    Flag = "BadLighting",
     Callback = function(Value)
         if Value == true then
             sethiddenproperty(game.Lighting, "Technology", Enum.Technology.Compatibility)
@@ -1045,25 +841,28 @@ EnvGroupBox:AddToggle('BadLighting', {
     end
 })
 
-EnvGroupBox:AddToggle('TreeShake', {
-    Text = 'Disable Tree Shake',
-    Default = false,
-    Tooltip = 'Disable annoying and laggy tree shaking',
+EnvironmentSection:CreateToggle({
+    Name = "Disable Tree Shake",
+    CurrentValue = false,
+    Flag = "TreeShake",
     Callback = function(Value)
         SetWindShake(not Value)
     end
 })
 
-EnvGroupBox:AddToggle('FullBright', {
-    Text = 'Daytime',
-    Default = false,
-    Tooltip = 'Disables day/night cycle and makes it day.'
+EnvironmentSection:CreateToggle({
+    Name = "Daytime",
+    CurrentValue = false,
+    Flag = "FullBright",
+    Callback = function(Value)
+        Toggles.FullBright.Value = Value
+    end
 })
 
-EnvGroupBox:AddToggle('NoFog', {
-    Text = 'Disable Fog',
-    Default = false,
-    Tooltip = 'You can see!',
+EnvironmentSection:CreateToggle({
+    Name = "Disable Fog",
+    CurrentValue = false,
+    Flag = "NoFog",
     Callback = function(Value)
         if Value then
             TweenService:Create(Lighting.Atmosphere,TweenInfo.new(1),{Density = 0}):Play()
@@ -1071,419 +870,23 @@ EnvGroupBox:AddToggle('NoFog', {
     end
 })
 
---game:GetService("Workspace").Camera.OverheadFX:destroy()
-GameGroupBox:AddToggle('AutoFish', {
-    Text = 'Auto fish',
-    Default = false,
-    Tooltip = 'Automatically fishes for you.',
-    Callback = function(Value)
-        if Value then
-            if AutoFishCoroutine then
-                coroutine.close(AutoFishCoroutine)
-            end
-            AutoFishCoroutine = coroutine.create(function()
-                local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-                local Humanoid = Character:FindFirstChild("Humanoid")
-                local Rod
-
-                local ToolAction = function(Rod)
-                    Remotes.Misc.ToolAction:FireServer(Rod)
-                end
-
-                local function GetRod()
-                    local rod
-                    for _, plrRod in pairs(Character:GetChildren()) do
-                        if string.find(string.lower(plrRod.Name), "rod") then
-                            rod = plrRod
-                            break
-                        end
-                        task.wait()
-                    end
-                    if not rod then
-                        for _, plrRod in pairs(LocalPlayer.Backpack:GetChildren()) do
-                            if string.find(string.lower(plrRod.Name), "rod") then
-                                rod = plrRod
-                                Humanoid:EquipTool(rod)
-                                break
-                            end
-                            task.wait()
-                        end
-                    end
-
-                    return rod
-                end
-
-                while task.wait(1) do
-                    Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-                    Humanoid = Character:FindFirstChild("Humanoid")
-                    Rod = GetRod()
-
-                    if Rod then
-
-                        local Counter = 0
-                        local MaxCounter = 5
-
-                        repeat
-                            Counter += 1
-                            task.wait(1)
-                        until Counter >= MaxCounter or Character:FindFirstChild("FishClock")
-
-                        if Counter < MaxCounter then
-
-                            repeat 
-                                task.wait() 
-                            until Character:FindFirstChild("FishBiteGoal") and Character:FindFirstChild("FishBiteProgress") or not Character:FindFirstChild("FishClock")
-
-                            local FishBiteGoal = Character:FindFirstChild("FishBiteGoal")
-                            local FishBiteProg = Character:FindFirstChild("FishBiteProgress")
-
-                            if FishBiteGoal and FishBiteProg then
-                                repeat
-                                    ToolAction(Rod)
-                                    task.wait(0.1)
-                                until FishBiteProg.Value >= FishBiteGoal.Value or not Character:FindFirstChild("FishClock") or not Character:FindFirstChild("BobberVal")
-                                Counter = 0
-                                FishBiteGoal = nil
-                                FishBiteProg = nil
-                                repeat task.wait() until not Character:FindFirstChild("BobberVal") and not Character:FindFirstChild("FishClock")
-                                task.wait(1)
-                            end
-
-                        else
-                            ToolAction(Rod)
-                        end
-                    
-                    else
-                        Debug("No rod.")
-                    end
-                end
-            end)
-            coroutine.resume(AutoFishCoroutine)
-        else
-            if AutoFishCoroutine then
-                coroutine.close(AutoFishCoroutine)
-            end
-            AutoFishCoroutine = false
-        end
+-- UI Settings Tab
+UISettingsTab:CreateButton({
+    Name = "Unload",
+    Callback = function()
+        Rayfield:Destroy()
     end
 })
 
-GameGroupBox:AddSlider('BoatSpeedSlider', {
-    Text = 'Boat Speed',
-    Default = 1,
-    Min = 1,
-    Max = 10,
-    Rounding = 1,
-    Compact = false
+UISettingsTab:CreateKeybind({
+    Name = "Toggle UI",
+    CurrentKeybind = "RightControl",
+    HoldToInteract = false,
+    Flag = "MenuKeybind",
+    Callback = function(Keybind)
+        Rayfield:SetVisibility(not Rayfield:IsVisible())
+    end
 })
-
-local UserInputService = game:GetService("UserInputService")
-
-local isWKeyDown = false
-local isSKeyDown = false
-
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if input.KeyCode == Enum.KeyCode.W then
-        isWKeyDown = true
-    elseif input.KeyCode == Enum.KeyCode.S then
-        isSKeyDown = true
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
-    if input.KeyCode == Enum.KeyCode.W then
-        isWKeyDown = false
-    elseif input.KeyCode == Enum.KeyCode.S then
-        isSKeyDown = false
-    end
-end)
-
-local OldCurrentEnemy
-local NearestEnemy
-local OldCurrentEnemyPlr
-local NearestEnemyPlr
-
-local TargetAquisitionCoro = coroutine.create(function()
-    while task.wait(1) do
-        if Toggles.KillAura.Value == true and LocalPlayer.Character:FindFirstChildOfClass("Tool") then
-            pcall(function()
-                if OldCurrentEnemy == nil or OldCurrentEnemy:FindFirstChild("HumanoidRootPart") == nil or OldCurrentEnemy:FindFirstChild("Humanoid") == nil or (OldCurrentEnemy.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 20 or OldCurrentEnemy.Humanoid.Health <= 0 then
-                    NearestEnemy = FindNearestEnemy()
-                else
-                    NearestEnemy = OldCurrentEnemy
-                end
-            end)
-        end
-    end
-end)
-
-local TargetAquisitionCoroPlrEnemy = coroutine.create(function()
-    while task.wait(1) do
-        if Toggles.PlrKillAura.Value == true and LocalPlayer.Character:FindFirstChildOfClass("Tool") then
-            pcall(function()
-                if OldCurrentEnemyPlr == nil or OldCurrentEnemyPlr:FindFirstChild("HumanoidRootPart") == nil or (OldCurrentEnemyPlr.HumanoidRootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude > 20 or OldCurrentEnemyPlr.Humanoid.Health <= 0 then
-                    NearestEnemyPlr = FindNearestPlayer()
-                else
-                    NearestEnemyPlr = OldCurrentEnemyPlr
-                end
-            end)
-        end
-    end
-end)
-
-local AccumulatedDeltaTime = 0
-local KillAuraCoro = coroutine.create(function()
-    while true do
-        local DeltaTime = RunService.Heartbeat:Wait()
-    --RunService.Heartbeat:Connect(function(DeltaTime)
-        AccumulatedDeltaTime += DeltaTime
-        if AccumulatedDeltaTime > 0.05 and Toggles.KillAura.Value == true and LocalPlayer.Character:FindFirstChildOfClass("Tool") then
-            if LocalPlayer.Character:FindFirstChild("Basic Combat") then
-                if Bin.MagicEnergy.Value < 30 then
-                    local args = {
-                        [1] = true
-                    }
-                    
-                    Remotes.Misc.ChargingToggle:FireServer(unpack(args))
-                    wait(1.5)
-                    local args = {
-                        [1] = false
-                    }
-                    
-                    Remotes.Misc.ChargingToggle:FireServer(unpack(args))
-                end
-                AccumulatedDeltaTime = 0
-                if NearestEnemy and NearestEnemy:FindFirstChild("Humanoid") then
-                    if NearestEnemy.Humanoid.Health > 0 then
-                        OldCurrentEnemy = NearestEnemy
-                        pcall(function()
-                            if Toggles.TPAura.Value == true and (LocalPlayer.Character.HumanoidRootPart.Position - NearestEnemy.PrimaryPart.Position).Magnitude < 30 then
-                                TP(NearestEnemy.PrimaryPart)
-                            end
-                        end)
-
-                        local args = {
-                            [1] = LocalPlayer.Character:FindFirstChild("Basic Combat"),
-                            [3] = NearestEnemy.PrimaryPart.Position
-                        }
-                        Remotes.Combat.UseMelee:FireServer(unpack(args))
-                        
-                        local AttackArgs = {
-                            [1] = 0,
-                            [2] = LocalPlayer.Character,
-                            [3] = NearestEnemy,
-                            [4] = LocalPlayer.Character:FindFirstChildOfClass("Tool"),
-                            [5] = "Attack"
-                        }
-
-                        for i = 15,1,-1 do
-                            if NearestEnemy.Humanoid.Health > 0 then
-                                task.spawn(function()
-                                    Remotes.Combat.DealStrengthDamage:FireServer(table.unpack(AttackArgs))
-                                end)
-                            end
-                        end
-                    end
-                end
-            else
-                AccumulatedDeltaTime = 0
-                if NearestEnemy then
-                    OldCurrentEnemy = NearestEnemy
-                    pcall(function()
-                        if Toggles.TPAura.Value == true and (LocalPlayer.Character.HumanoidRootPart.Position - NearestEnemy.PrimaryPart.Position).Magnitude < 30 then
-                            TP(NearestEnemy.PrimaryPart)
-                        end
-                    end)
-                    for i = 4,1,-1 do
-                        task.spawn(function()
-                            local args = {
-                                [1] = 0,
-                                [2] = LocalPlayer.Character,
-                                [3] = NearestEnemy,
-                                [4] = LocalPlayer.Character:FindFirstChildOfClass("Tool"),
-                                [5] = "Slash",
-                                [6] = NearestEnemy.PrimaryPart.Position,
-                                [7] = 1.5
-                            }
-        
-                            Remotes.Combat.DealWeaponDamage:FireServer(table.unpack(args))
-                        end)
-                    end
-                end
-            end
-        end
-    end
-end)
-
-local AccumulatedDeltaTimePlr = 0
-local KillAuraCoroPlr = coroutine.create(function()
-    while true do
-        local DeltaTime = RunService.Heartbeat:Wait()
-    --RunService.Heartbeat:Connect(function(DeltaTime)
-        AccumulatedDeltaTimePlr += DeltaTime
-        if AccumulatedDeltaTimePlr > 0.05 and Toggles.PlrKillAura.Value == true and LocalPlayer.Character:FindFirstChildOfClass("Tool") then
-            if LocalPlayer.Character:FindFirstChild("Basic Combat") then
-                if Bin.MagicEnergy.Value < 30 then
-                    local args = {
-                        [1] = true
-                    }
-                    
-                    Remotes.Misc.ChargingToggle:FireServer(unpack(args))
-                    wait(1.5)
-                    local args = {
-                        [1] = false
-                    }
-                    
-                    Remotes.Misc.ChargingToggle:FireServer(unpack(args))
-                end
-                AccumulatedDeltaTimePlr = 0
-                if NearestEnemyPlr then
-                    if NearestEnemyPlr.Humanoid.Health > 0 then
-                        OldCurrentEnemyPlr = NearestEnemyPlr
-                        pcall(function()
-                            if Toggles.TPAura.Value == true and (LocalPlayer.Character.HumanoidRootPart.Position - NearestEnemyPlr.PrimaryPart.Position).Magnitude < 30 then
-                                TP(NearestEnemyPlr.PrimaryPart)
-                            end
-                        end)
-
-                        local args = {
-                            [1] = LocalPlayer.Character:FindFirstChild("Basic Combat"),
-                            [3] = NearestEnemyPlr.PrimaryPart.Position
-                        }
-                        Remotes.Combat.UseMelee:FireServer(unpack(args))
-
-                        for i = 8,1,-1 do
-                            if NearestEnemyPlr.Humanoid.Health > 0 then
-                                task.spawn(function()
-                                    local args = {
-                                        [1] = 0,
-                                        [2] = LocalPlayer.Character,
-                                        [3] = NearestEnemyPlr,
-                                        [4] = LocalPlayer.Character:FindFirstChildOfClass("Tool"),
-                                        [5] = "Attack"
-                                    }
-                
-                                    Remotes.Combat.DealStrengthDamage:FireServer(table.unpack(args))
-                                end)
-                            end
-                        end
-                    end
-                end
-            else
-                AccumulatedDeltaTimePlr = 0
-                if NearestEnemyPlr then
-                    OldCurrentEnemyPlr = NearestEnemyPlr
-                    pcall(function()
-                        if Toggles.TPAura.Value == true and (LocalPlayer.Character.HumanoidRootPart.Position - NearestEnemyPlr.PrimaryPart.Position).Magnitude < 30 then
-                            TP(NearestEnemyPlr.PrimaryPart)
-                        end
-                    end)
-                    for i = 4,1,-1 do
-                        task.spawn(function()
-                            local args = {
-                                [1] = 0,
-                                [2] = LocalPlayer.Character,
-                                [3] = NearestEnemyPlr,
-                                [4] = LocalPlayer.Character:FindFirstChildOfClass("Tool"),
-                                [5] = "Slash",
-                                [6] = NearestEnemyPlr.PrimaryPart.Position,
-                                [7] = 1.5
-                            }
-        
-                            Remotes.Combat.DealWeaponDamage:FireServer(table.unpack(args))
-                        end)
-                    end
-                end
-            end
-        end
-    end
-end)
-
-local BoatSpeedCoro = coroutine.create(function()
-    RunService.Heartbeat:Connect(function()
-        if Options.BoatSpeedSlider.Value > 1 and (isWKeyDown or isSKeyDown) then
-            local Boat = GetShip()
-            local BodyVelocity = FindChildByIndexSequence(Boat,{"Center", "SailV"})
-            if BodyVelocity and BodyVelocity.Velocity.Magnitude > 5 then
-                BodyVelocity.Velocity = BodyVelocity.Velocity.Unit * (Boat.Speed.Value * 0.5) * Options.BoatSpeedSlider.Value
-            end
-        end
-    end)
-end)
-
-coroutine.resume(BoatSpeedCoro)
-coroutine.resume(TargetAquisitionCoro)
-coroutine.resume(KillAuraCoro)
-coroutine.resume(TargetAquisitionCoroPlrEnemy)
-coroutine.resume(KillAuraCoroPlr)
-
-local oldhmmnc
-oldhmmnc = hookmetamethod(game, "__namecall", function(self, ...)
-    local Args = {...}
-    if not checkcaller() then
-        if tostring(self) == "SetTarget" or tostring(self) == "ChangeStatus" and getnamecallmethod() == "FireServer" then
-            if Toggles.BlindNPCs.Value == true then
-                return
-            end
-        end
-        if tostring(self) == "TargetBehavior" and getnamecallmethod() == "InvokeServer" then
-            if Toggles.ImmobileNPCs.Value == true then
-                return
-            end
-        end
-        if tostring(self) == "DealAttackDamage" and getnamecallmethod() == "FireServer" and Args[2] == LocalPlayer.Character then
-            if Toggles.NoWeaponDamage.Value == true then
-                return
-            end
-        end
-        if tostring(self) == "TakeSideDamage" and getnamecallmethod() == "FireServer" and workspace.Enemies[Args[1]] then
-            if Toggles.NoWeaponDamage.Value == true then
-                return
-            end
-        end
-        if tostring(self) == "DealWeaponDamage" and getnamecallmethod() == "FireServer" and Args[3] == LocalPlayer.Character then
-            if Toggles.NoWeaponDamage.Value == true then
-                return
-            end
-        end
-        if tostring(self) == "DealBossDamage" and getnamecallmethod() == "FireServer" and Args[2] == LocalPlayer.Character then
-            if Toggles.NoWeaponDamage.Value == true then
-                return
-            end
-        end
-        if self == LocalPlayer and getnamecallmethod() == "Kick" then
-            return
-        end
-    end
-    return oldhmmnc(self, ...)
-end)
-
--- local newindexhmm
--- newindexhmm = hookmetamethod(game, "__newindex", function(self, key, val)
---     if not checkcaller() then
---         if tostring(key) == "Text" and Toggles.Anonymous.Value then
---             local function stopText()
---                 local guiText = ""
---                 guiText = tostring(val)
---                 guiText = guiText:gsub(LocalPlayer.Name, "Anonymous")
---                 guiText = guiText:gsub((LocalPlayer.Name):lower(), "Anonymous")
---                 guiText = guiText:gsub(LocalPlayer.DisplayName, "Anonymous")
---                 guiText = guiText:gsub((LocalPlayer.DisplayName):lower(), "Anonymous")
---                 return newindexhmm(self, key, guiText)
---             end
---             if string.find(tostring(val), LocalPlayer.Name) then
---                 stopText()
---             elseif string.find(tostring(val), string.lower(LocalPlayer.Name)) then
---                 stopText()
---             elseif string.find(tostring(val), LocalPlayer.DisplayName) then
---                 stopText()
---             elseif string.find(tostring(val), string.lower(LocalPlayer.DisplayName)) then
---                 stopText()
---             end
---         end
---     end
---     return newindexhmm(self, key, val)
--- end)
 
 Lighting.Atmosphere.Changed:Connect(function(Property)
     if Toggles.FullBright.Value == true then
@@ -1564,55 +967,4 @@ DCon = LocalPlayer.Character.DescendantAdded:Connect(OnCharacterChildAdded)
 LocalPlayer.Character:WaitForChild("Humanoid").Died:Once(function()
     DCon:Disconnect()
     Debug("Disconnected character DescendantAdded.")
-end)
-
--- UI Settings
-local MenuGroup = Tabs.UISettings:AddLeftGroupbox('Menu')
-
-MenuGroup:AddButton('Unload', function()  Library:Unload() end)
-MenuGroup:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'RightControl', NoUI = true, Text = 'Menu keybind' })
-
-Library.ToggleKeybind = Options.MenuKeybind
-
-ThemeManager:SetLibrary(Library)
-SaveManager:SetLibrary(Library)
-
-SaveManager:IgnoreThemeSettings()
-
-SaveManager:SetIgnoreIndexes({ 'MenuKeybind' })
-
-ThemeManager:SetFolder('saswareao')
-SaveManager:SetFolder('saswareao/main')
-
-SaveManager:BuildConfigSection(Tabs.UISettings)
-
-ThemeManager:ApplyToTab(Tabs.UISettings)
-
--- Add this near the top of the file with other variables
-local remotes = {
-    "DealAttackDamage",
-    "DealStrengthDamage",
-    "DealWeaponDamage",
-    "DealMagicDamage",
-    "DealDamageBoat",
-    "DealDamageBoat3",
-    "DealDamageBoat2",
-    "DealDamageBoat1"
-}
-
--- Add this with other task.spawn functions
-task.spawn(function()
-    local damageHook
-    damageHook = hookmetamethod(game, "__namecall", newcclosure(function(self, ...)
-        local args = { ... }
-        local method = getnamecallmethod()
-
-        if not checkcaller() and table.find(remotes, tostring(self)) and Toggles.DamageMultiplier.Value then
-            for i = 1, Options.DamageMultiplierAmount.Value do
-                self.FireServer(self, unpack(args))
-            end
-        end
-
-        return damageHook(self, unpack(args))
-    end))
 end)
