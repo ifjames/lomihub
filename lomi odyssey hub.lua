@@ -1,4 +1,4 @@
-Version = "indev-0.9.1"
+Version = "0.2"
 Startup = tick()
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -423,15 +423,15 @@ local MainTab = Window:CreateTab("Main", "sword")
 local UISettingsTab = Window:CreateTab("UI Settings", "settings")
 
 -- Create sections for Main tab
-local CombatSection = MainTab:CreateSection("Combat")
-local TeleportsSection = MainTab:CreateSection("Teleports")
-local CharacterSection = MainTab:CreateSection("Character")
-local NPCSection = MainTab:CreateSection("NPCs")
-local GameSection = MainTab:CreateSection("Game")
-local EnvironmentSection = MainTab:CreateSection("Environment")
+MainTab:CreateSection("Combat")
+MainTab:CreateSection("Teleports")
+MainTab:CreateSection("Character")
+MainTab:CreateSection("NPCs")
+MainTab:CreateSection("Game")
+MainTab:CreateSection("Environment")
 
 -- Combat Section
-CombatSection:CreateToggle({
+MainTab:AddToggle({
     Name = "NPC Kill Aura",
     CurrentValue = false,
     Flag = "KillAura",
@@ -440,7 +440,7 @@ CombatSection:CreateToggle({
     end
 })
 
-CombatSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Player Kill Aura",
     CurrentValue = false,
     Flag = "PlrKillAura",
@@ -449,7 +449,7 @@ CombatSection:CreateToggle({
     end
 })
 
-CombatSection:CreateToggle({
+MainTab:AddToggle({
     Name = "TP Aura",
     CurrentValue = false,
     Flag = "TPAura",
@@ -458,7 +458,7 @@ CombatSection:CreateToggle({
     end
 })
 
-CombatSection:CreateToggle({
+MainTab:AddToggle({
     Name = "No Knockback",
     CurrentValue = false,
     Flag = "NoKnockback",
@@ -467,7 +467,7 @@ CombatSection:CreateToggle({
     end
 })
 
-CombatSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Godmode",
     CurrentValue = false,
     Flag = "NoWeaponDamage",
@@ -476,7 +476,7 @@ CombatSection:CreateToggle({
     end
 })
 
-CombatSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Damage Multiplier",
     CurrentValue = false,
     Flag = "DamageMultiplier",
@@ -493,7 +493,7 @@ CombatSection:CreateToggle({
     end
 })
 
-CombatSection:CreateSlider({
+MainTab:AddSlider({
     Name = "Damage Multiplier Amount",
     Range = {1, 15},
     Increment = 1,
@@ -506,7 +506,7 @@ CombatSection:CreateSlider({
 })
 
 -- Character Section
-CharacterSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Auto Eat",
     CurrentValue = false,
     Flag = "AutoEat",
@@ -551,7 +551,7 @@ CharacterSection:CreateToggle({
     end
 })
 
-CharacterSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Boat/Character Fly",
     CurrentValue = false,
     Flag = "BoatFly",
@@ -566,7 +566,7 @@ CharacterSection:CreateToggle({
     end
 })
 
-CharacterSection:CreateSlider({
+MainTab:AddSlider({
     Name = "Fly Speed",
     Range = {1, 10},
     Increment = 1,
@@ -578,7 +578,7 @@ CharacterSection:CreateSlider({
     end
 })
 
-CharacterSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Infinite Stamina",
     CurrentValue = false,
     Flag = "InfiniteStamina",
@@ -591,7 +591,7 @@ CharacterSection:CreateToggle({
     end
 })
 
-CharacterSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Jesus",
     CurrentValue = false,
     Flag = "Jesus",
@@ -628,7 +628,7 @@ CharacterSection:CreateToggle({
     end
 })
 
-CharacterSection:CreateButton({
+MainTab:AddButton({
     Name = "Hide Name/Level from other players",
     Callback = function()
         local Overhead = FindChildByIndexSequence(LocalPlayer.Character, {"Head","Overhead"})
@@ -642,7 +642,7 @@ CharacterSection:CreateButton({
 })
 
 -- Teleports Section
-TeleportsSection:CreateDropdown({
+MainTab:AddDropdown({
     Name = "Teleport to island",
     Options = Islands,
     CurrentOption = nil,
@@ -677,7 +677,7 @@ TeleportsSection:CreateDropdown({
     end
 })
 
-TeleportsSection:CreateButton({
+MainTab:AddButton({
     Name = "Teleport to current story quest",
     Callback = function()
         local StoryMarker = GetCurrentStoryMarker()
@@ -688,14 +688,14 @@ TeleportsSection:CreateButton({
     end
 })
 
-TeleportsSection:CreateButton({
+MainTab:AddButton({
     Name = "Teleport to ship",
     Callback = function()
         TP(GetShip().PrimaryPart.Position + Vector3.new(0,20,0))
     end
 })
 
-TeleportsSection:CreateButton({
+MainTab:AddButton({
     Name = "Teleport to current quest",
     Callback = function()
         local QuestMarker = GetCurrentQuestMarker()
@@ -707,7 +707,7 @@ TeleportsSection:CreateButton({
 })
 
 -- Game Section
-GameSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Auto-Skip Dialog",
     CurrentValue = false,
     Flag = "SkipDialog",
@@ -716,7 +716,7 @@ GameSection:CreateToggle({
     end
 })
 
-GameSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Kill ALL enemies",
     CurrentValue = false,
     Flag = "AllFarm",
@@ -725,7 +725,7 @@ GameSection:CreateToggle({
     end
 })
 
-GameSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Auto-Kill Enemies",
     CurrentValue = false,
     Flag = "EnemyFarm",
@@ -776,7 +776,7 @@ GameSection:CreateToggle({
     end
 })
 
-GameSection:CreateDropdown({
+MainTab:AddDropdown({
     Name = "Teleport to enemies",
     Options = Enemies,
     CurrentOption = nil,
@@ -787,14 +787,14 @@ GameSection:CreateDropdown({
     end
 })
 
-GameSection:CreateButton({
+MainTab:AddButton({
     Name = "Rejoin",
     Callback = function()
         TeleportService:Teleport(12604352060, LocalPlayer, tonumber(Bin.File.Value) or 1)
     end
 })
 
-GameSection:CreateButton({
+MainTab:AddButton({
     Name = "Serverhop",
     Callback = function()
         local srvHop = loadstring(game:HttpGet('https://raw.githubusercontent.com/AlternateYT/Roblox-Scripts/main/Serverhop%20Module.lua'))()
@@ -802,7 +802,7 @@ GameSection:CreateButton({
     end
 })
 
-GameSection:CreateButton({
+MainTab:AddButton({
     Name = "Discover all islands",
     Callback = function()
         for i,v in pairs(workspace.Map:GetChildren()) do
@@ -814,7 +814,7 @@ GameSection:CreateButton({
 })
 
 -- Environment Section
-EnvironmentSection:CreateButton({
+MainTab:AddButton({
     Name = "Load nearby NPCs",
     Callback = function()
         for i,NPC in pairs(workspace.NPCs:GetChildren()) do
@@ -826,7 +826,7 @@ EnvironmentSection:CreateButton({
     end
 })
 
-EnvironmentSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Optimize Lighting",
     CurrentValue = false,
     Flag = "BadLighting",
@@ -841,7 +841,7 @@ EnvironmentSection:CreateToggle({
     end
 })
 
-EnvironmentSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Disable Tree Shake",
     CurrentValue = false,
     Flag = "TreeShake",
@@ -850,7 +850,7 @@ EnvironmentSection:CreateToggle({
     end
 })
 
-EnvironmentSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Daytime",
     CurrentValue = false,
     Flag = "FullBright",
@@ -859,7 +859,7 @@ EnvironmentSection:CreateToggle({
     end
 })
 
-EnvironmentSection:CreateToggle({
+MainTab:AddToggle({
     Name = "Disable Fog",
     CurrentValue = false,
     Flag = "NoFog",
@@ -871,14 +871,14 @@ EnvironmentSection:CreateToggle({
 })
 
 -- UI Settings Tab
-UISettingsTab:CreateButton({
+UISettingsTab:AddButton({
     Name = "Unload",
     Callback = function()
         Rayfield:Destroy()
     end
 })
 
-UISettingsTab:CreateKeybind({
+UISettingsTab:AddKeybind({
     Name = "Toggle UI",
     CurrentKeybind = "RightControl",
     HoldToInteract = false,
