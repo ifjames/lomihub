@@ -1,4 +1,4 @@
-Version = "2.6"
+Version = "2.7"
 Title = "Lomi AO "
 Startup = tick()
 
@@ -522,6 +522,52 @@ ExploitsTab:CreateSection("Boat Exploits")
 ExploitsTab:CreateToggle({ Name = "Ship Repair Multiplier", CurrentValue = false, Flag = "FastBoatRepair", Callback = function(Value) var.FastBoatRepair = Value end })
 ExploitsTab:CreateSlider({ Name = "Ship Repair Multiplier Amount", Range = {1, 50}, Increment = 1, Suffix = "x", CurrentValue = 1, Flag = "RepairMulti", Callback = function(Value) var.RepairMulti = Value end })
 
+local isWKeyDown = false
+local isSKeyDown = false
+local BoatSpeedMultiplier = 1
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.W then
+        isWKeyDown = true
+    elseif input.KeyCode == Enum.KeyCode.S then
+        isSKeyDown = true
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+    if input.KeyCode == Enum.KeyCode.W then
+        isWKeyDown = false
+    elseif input.KeyCode == Enum.KeyCode.S then
+        isSKeyDown = false
+    end
+end)
+
+ExploitsTab:CreateSlider({
+    Name = "Boat Speed",
+    Range = {1, 10},
+    Increment = 0.1,
+    Suffix = "x",
+    CurrentValue = 1,
+    Flag = "BoatSpeedSlider",
+    Callback = function(Value)
+        BoatSpeedMultiplier = Value
+    end
+})
+
+task.spawn(function()
+    RunService.Heartbeat:Connect(function()
+        if BoatSpeedMultiplier > 1 and (isWKeyDown or isSKeyDown) then
+            local Boat = GetShip()
+            if Boat then
+                local BodyVelocity = FindChildByIndexSequence(Boat, {"Center", "SailV"})
+                if BodyVelocity and BodyVelocity.Velocity.Magnitude > 5 then
+                    BodyVelocity.Velocity = BodyVelocity.Velocity.Unit * (Boat.Speed.Value * 0.5) * BoatSpeedMultiplier
+                end
+            end
+        end
+    end)
+end)
+
 ExploitsTab:CreateSection("Item Exploits")
 ExploitsTab:CreateButton({
     Name = "Quick Fill Empty Bottles",
@@ -624,7 +670,7 @@ DarkSeaTab:CreateToggle({
 -- Misc Tab
 MiscTab:CreateSection("Misc")
 MiscTab:CreateButton({
-    Name = "ArcaneYield (modded IY)",
+    Name = "InfiniteYield for AO",
     Callback = function()
         loadstring(game:HttpGet("https://raw.githubusercontent.com/Idktbh12z/ArcaneYIELD/refs/heads/main/main.lua"))()
     end
