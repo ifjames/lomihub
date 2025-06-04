@@ -1,4 +1,4 @@
-Version = "2.3"
+Version = "2.6"
 Title = "Lomi AO "
 Startup = tick()
 
@@ -157,6 +157,16 @@ local Window = Rayfield:CreateWindow({
         Enabled = false,
         FolderName = "ArcaneOdysseyHub",
         FileName = "Config"
+    },
+    KeySystem = false, -- Set this to true to use our key system
+    KeySettings = {
+       Title = Title .. " | " .. Version,
+       Subtitle = "Key System",
+       Note = "Key is at discord.gg/lomihub", -- Use this to tell the user how to get a key
+       FileName = "LomiHubKey", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+       SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+       GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+       Key = {"lomihub-AsxQvkslP581d"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
     }
 })
 
@@ -662,6 +672,23 @@ MiscTab:CreateButton({
 
 MiscTab:CreateSection("Environment")
 MiscTab:CreateButton({
+    Name = "Discover All Islands",
+    Callback = function()
+        for _, Island in pairs(workspace.Map:GetChildren()) do
+            if Island:FindFirstChild("Center") then
+                Remotes.Misc.UpdateLastSeen:FireServer(Island.Name, "")
+            end
+        end
+        Rayfield:Notify({
+            Title = "Islands",
+            Content = "All islands have been discovered!",
+            Duration = 4,
+            Image = "repeat"
+        })
+    end
+})
+
+MiscTab:CreateButton({
     Name = "Load nearby NPCs",
     Callback = function()
         for i,NPC in pairs(workspace.NPCs:GetChildren()) do
@@ -709,6 +736,57 @@ MiscTab:CreateButton({
                 Image = "repeat"
             })
         end
+    end
+})
+
+MiscTab:CreateSection("Factions")
+MiscTab:CreateButton({
+    Name = "Join Navy",
+    Callback = function()
+        local args = {
+            "Join",
+            "GrandNavy_F"
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("Remotes"):WaitForChild("Misc"):WaitForChild("FactionService"):InvokeServer(unpack(args))
+        Rayfield:Notify({
+            Title = "Faction",
+            Content = "Attempting to join Navy...",
+            Duration = 4,
+            Image = "repeat"
+        })
+    end
+})
+
+MiscTab:CreateButton({
+    Name = "Join Assassin",
+    Callback = function()
+        local args = {
+            "Join",
+            "ASyndicate_F"
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("Remotes"):WaitForChild("Misc"):WaitForChild("FactionService"):InvokeServer(unpack(args))
+        Rayfield:Notify({
+            Title = "Faction",
+            Content = "Attempting to join Assassin...",
+            Duration = 4,
+            Image = "repeat"
+        })
+    end
+})
+
+MiscTab:CreateButton({
+    Name = "Leave Clan",
+    Callback = function()
+        local args = {
+            "Leave"
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("RS"):WaitForChild("Remotes"):WaitForChild("Misc"):WaitForChild("FactionService"):InvokeServer(unpack(args))
+        Rayfield:Notify({
+            Title = "Faction",
+            Content = "Attempting to leave clan...",
+            Duration = 4,
+            Image = "repeat"
+        })
     end
 })
 
@@ -884,12 +962,337 @@ task.spawn(function()
     end
 end)
 
--- Initial Notification
-task.spawn(function()
-    StarterGui:SetCore("SendNotification", {
-        Title = "Alert!",
-        Text = "Still work in progress, expect bugs and crashes.",
-        Duration = 10,
-        Button1 = "Ok!"
-    })
-end)
+-- Magic and Fighting Style Exploits
+local RS = game:GetService("ReplicatedStorage"):WaitForChild("RS",10)
+local MagicModule = require(RS.Modules.Magic)
+local MeleeModule = require(RS.Modules.Melee)
+local BasicModule = require(RS.Modules.Basic)
+
+local SelectedMagic = nil
+local SelectedStyle = nil
+local MagicList = {}
+
+for _,Magic in pairs(MagicModule["Types"]) do
+    table.insert(MagicList, _)
+end
+
+ExploitsTab:CreateSection("Magic Exploits")
+ExploitsTab:CreateDropdown({
+    Name = "Select Magic",
+    Options = MagicList,
+    CurrentOption = nil,
+    Flag = "MagicDropdown",
+    Callback = function(Value)
+        if type(Value) == "table" then
+            SelectedMagic = Value[1]
+        else
+            SelectedMagic = Value
+        end
+        
+        if not SelectedMagic then return end
+        if not MagicModule["Types"][SelectedMagic] then return end
+        
+        Rayfield:Notify({
+            Title = "Magic Selected",
+            Content = "Selected magic: " .. SelectedMagic,
+            Duration = 2,
+            Image = "repeat"
+        })
+    end
+})
+
+ExploitsTab:CreateInput({
+    Name = "Magic Size",
+    PlaceholderText = "Enter size (max 75)",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Value)
+        if not SelectedMagic then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please select a magic first!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        if not tonumber(Value) then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please enter a valid number!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        local num = tonumber(Value)
+        if num > 75 then 
+            Rayfield:Notify({
+                Title = "Warning!",
+                Content = "This could break your game if you set it too high.",
+                Duration = 4,
+                Image = "repeat"
+            })
+        end
+        pcall(function()
+            MagicModule["Types"][SelectedMagic].Size = num
+            Rayfield:Notify({
+                Title = "Success",
+                Content = "Magic size set to: " .. num,
+                Duration = 2,
+                Image = "repeat"
+            })
+        end)
+    end
+})
+
+ExploitsTab:CreateInput({
+    Name = "Magic Speed",
+    PlaceholderText = "Enter speed (max 3)",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Value)
+        if not SelectedMagic then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please select a magic first!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        if not tonumber(Value) then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please enter a valid number!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        local num = tonumber(Value)
+        if num > 3 then 
+            Rayfield:Notify({
+                Title = "Warning!",
+                Content = "This could break your game if you set it too high.",
+                Duration = 4,
+                Image = "repeat"
+            })
+        end
+        pcall(function()
+            MagicModule["Types"][SelectedMagic].Speed = num
+            Rayfield:Notify({
+                Title = "Success",
+                Content = "Magic speed set to: " .. num,
+                Duration = 2,
+                Image = "repeat"
+            })
+        end)
+    end
+})
+
+ExploitsTab:CreateInput({
+    Name = "Magic Imbue Speed",
+    PlaceholderText = "Enter imbue speed (max 3)",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Value)
+        if not SelectedMagic then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please select a magic first!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        if not tonumber(Value) then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please enter a valid number!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        local num = tonumber(Value)
+        if num > 3 then 
+            Rayfield:Notify({
+                Title = "Warning!",
+                Content = "This could break your game if you set it too high.",
+                Duration = 4,
+                Image = "repeat"
+            })
+        end
+        pcall(function()
+            MagicModule["Types"][SelectedMagic].ImbueSpeed = num
+            Rayfield:Notify({
+                Title = "Success",
+                Content = "Magic imbue speed set to: " .. num,
+                Duration = 2,
+                Image = "repeat"
+            })
+        end)
+    end
+})
+
+-- Fighting Style Exploits
+local StyleList = {}
+for _,Style in pairs(MeleeModule["Types"]) do
+    table.insert(StyleList, _)
+end
+
+ExploitsTab:CreateSection("Fighting Style Exploits")
+ExploitsTab:CreateDropdown({
+    Name = "Select Fighting Style",
+    Options = StyleList,
+    CurrentOption = nil,
+    Flag = "StyleDropdown",
+    Callback = function(Value)
+        if type(Value) == "table" then
+            SelectedStyle = Value[1]
+        else
+            SelectedStyle = Value
+        end
+        
+        if not SelectedStyle then return end
+        if not MeleeModule["Types"][SelectedStyle] then return end
+        
+        Rayfield:Notify({
+            Title = "Style Selected",
+            Content = "Selected style: " .. SelectedStyle,
+            Duration = 2,
+            Image = "repeat"
+        })
+    end
+})
+
+ExploitsTab:CreateInput({
+    Name = "Style Size",
+    PlaceholderText = "Enter size (max 75)",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Value)
+        if not SelectedStyle then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please select a fighting style first!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        if not tonumber(Value) then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please enter a valid number!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        local num = tonumber(Value)
+        if num > 75 then 
+            Rayfield:Notify({
+                Title = "Warning!",
+                Content = "This could break your game if you set it too high.",
+                Duration = 4,
+                Image = "repeat"
+            })
+        end
+        pcall(function()
+            MeleeModule["Types"][SelectedStyle].Size = num
+            Rayfield:Notify({
+                Title = "Success",
+                Content = "Style size set to: " .. num,
+                Duration = 2,
+                Image = "repeat"
+            })
+        end)
+    end
+})
+
+ExploitsTab:CreateInput({
+    Name = "Style Speed",
+    PlaceholderText = "Enter speed (max 1)",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Value)
+        if not SelectedStyle then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please select a fighting style first!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        if not tonumber(Value) then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please enter a valid number!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        local num = tonumber(Value)
+        if num > 1 then 
+            Rayfield:Notify({
+                Title = "Warning!",
+                Content = "Speed cannot be higher than 1 for fighting styles at the moment!",
+                Duration = 4,
+                Image = "repeat"
+            })
+            return
+        end
+        pcall(function()
+            MeleeModule["Types"][SelectedStyle].Speed = num
+            Rayfield:Notify({
+                Title = "Success",
+                Content = "Style speed set to: " .. num,
+                Duration = 2,
+                Image = "repeat"
+            })
+        end)
+    end
+})
+
+ExploitsTab:CreateInput({
+    Name = "Style Imbue Speed",
+    PlaceholderText = "Enter imbue speed (max 3)",
+    RemoveTextAfterFocusLost = false,
+    Callback = function(Value)
+        if not SelectedStyle then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please select a fighting style first!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        if not tonumber(Value) then 
+            Rayfield:Notify({
+                Title = "Warning",
+                Content = "Please enter a valid number!",
+                Duration = 2,
+                Image = "repeat"
+            })
+            return 
+        end
+        local num = tonumber(Value)
+        if num > 3 then 
+            Rayfield:Notify({
+                Title = "Warning!",
+                Content = "This could break your game if you set it too high.",
+                Duration = 4,
+                Image = "repeat"
+            })
+        end
+        pcall(function()
+            MeleeModule["Types"][SelectedStyle].ImbueSpeed = num
+            Rayfield:Notify({
+                Title = "Success",
+                Content = "Style imbue speed set to: " .. num,
+                Duration = 2,
+                Image = "repeat"
+            })
+        end)
+    end
+})
